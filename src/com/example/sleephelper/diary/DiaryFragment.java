@@ -5,8 +5,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.sleephelper.diary.DiaryRecyclerViewAdapter.EditClickListener;
 import com.example.sleephlper.R;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.Animator.AnimatorListener;
+import android.animation.ObjectAnimator;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,16 +21,20 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 public class DiaryFragment extends Fragment{
 	private RecyclerView mRecyclerView;
-	private DiaryLine mDiaryLine;
 	private DiaryRecyclerViewAdapter mAdapter;
 	private List<String> mDates;
 	private List<String> mTitles;
 	private List<String> mContents;
+	
+	private DiaryLine mDiaryLine;
+	private ImageButton mButtonAddDiary;
 	
 	@Override
 	@Nullable
@@ -34,8 +44,37 @@ public class DiaryFragment extends Fragment{
 		mRecyclerView = (RecyclerView)view.findViewById(R.id.recyclerview_diary);
 		mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 		mDiaryLine = (DiaryLine)view.findViewById(R.id.diaryline);
+		mButtonAddDiary = (ImageButton)view.findViewById(R.id.ibtn_add_diary);
+		mButtonAddDiary.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getActivity(),DiaryAddActivity.class);
+				startActivity(intent);
+			}
+		});
 		initData();
-
+		mAdapter.setEditClickListener(new EditClickListener() {
+			
+			@Override
+			public void onClick(View view, int position) {
+				final Intent intent = new Intent(getActivity(),DiaryAddActivity.class);
+				intent.putExtra("date", mDates.get(position));
+				intent.putExtra("title", mTitles.get(position));
+				intent.putExtra("content", mContents.get(position));
+				ObjectAnimator animator = ObjectAnimator.ofFloat(view, "rotation", 0,360);
+				animator.setDuration(500);
+				animator.start();
+				animator.addListener(new AnimatorListenerAdapter() {
+					@Override
+					public void onAnimationEnd(Animator animation) {
+						super.onAnimationEnd(animation);
+						startActivity(intent);
+						getActivity().overridePendingTransition(0, 0);
+					}
+				});
+			}
+		});
 		return view;
 	}
 	

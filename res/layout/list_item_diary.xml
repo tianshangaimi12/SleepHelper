@@ -29,7 +29,7 @@
             <View 
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#eeeeee"/>
+                android:background="#bbbbbb"/>
             <TextView 
                 android:id="@+id/txt_item_diary_title"
                 android:layout_width="wrap_content"
@@ -38,7 +38,7 @@
             <View 
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#eeeeee"/>
+                android:background="#bbbbbb"/>
             <TextView 
                 android:id="@+id/txt_item_diary_content"
                 android:layout_width="wrap_content"
@@ -48,7 +48,7 @@
             <View 
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#eeeeee"/>
+                android:background="#bbbbbb"/>
         </LinearLayout>
         <ImageView 
             android:id="@+id/img_item_diary_edit"

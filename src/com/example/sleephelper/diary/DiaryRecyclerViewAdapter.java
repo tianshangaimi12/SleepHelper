@@ -12,6 +12,7 @@ import android.text.TextPaint;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ public class DiaryRecyclerViewAdapter extends Adapter{
 	private List<String> mTitles;
 	private List<String> mContents;
 	private List<Integer> pointsY = new ArrayList<Integer>();
+	private EditClickListener editClickListener;
 	private final String TAG = "DiaryRecyclerViewAdapter";
 	
 	public DiaryRecyclerViewAdapter(Context context,List<String> dates,List<String> titles,List<String> contents)
@@ -40,14 +42,22 @@ public class DiaryRecyclerViewAdapter extends Adapter{
 	}
 
 	@Override
-	public void onBindViewHolder(ViewHolder arg0, int position) {
-		DiaryViewHolder viewHolder = (DiaryViewHolder) arg0;
+	public void onBindViewHolder(ViewHolder arg0, final int position) {
+		final DiaryViewHolder viewHolder = (DiaryViewHolder) arg0;
 		TextPaint paint = viewHolder.txtTitle.getPaint();
 		paint.setFakeBoldText(true); 
 		viewHolder.txtDate.setText(mDates.get(position));
 		pointsY.add(viewHolder.txtDate.getBottom()-viewHolder.txtDate.getHeight()/2);
 		viewHolder.txtTitle.setText(mTitles.get(position));
 		viewHolder.txtContent.setText(mContents.get(position));
+		viewHolder.imgEdit.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(editClickListener != null)
+					editClickListener.onClick(viewHolder.itemView, position);
+			}
+		});
 	}
 
 	@Override
@@ -83,4 +93,15 @@ public class DiaryRecyclerViewAdapter extends Adapter{
 		return pointsY;
 	}
 
+	
+	interface EditClickListener
+	{
+		void onClick(View view,int position);
+	}
+	
+	public void setEditClickListener(EditClickListener editClickListener)
+	{
+		this.editClickListener = editClickListener;
+	}
 }
+

@@ -76,7 +76,7 @@ public class SleepHelperTitle extends LinearLayout{
 		mBackClickListnerGrid = backClickListner;
 	}
 	
-	interface BackClickListner
+	public interface BackClickListner
 	{
 		void onClick(View view);
 	}
