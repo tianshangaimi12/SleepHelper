@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SleepHelper</string>
+    <string name="hello_world">Hello world!</string>
+	<string name="girl_bar_txt">妹子</string>
+	<string name="diary_bar_txt">日记</string>
+</resources>

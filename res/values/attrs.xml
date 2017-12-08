@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="barWidth" format="dimension"/>
+    <attr name="barHeight" format="dimension"></attr>
+    <attr name="barColor" format="color"></attr>
+    
+    <declare-styleable name="selectBar">
+        <attr name="barWidth"/>
+        <attr name="barHeight"></attr>
+        <attr name="barColor"></attr>
+    </declare-styleable>
+</resources>
