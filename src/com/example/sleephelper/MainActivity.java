@@ -105,4 +105,13 @@ public class MainActivity extends FragmentActivity implements OnClickListener{
 			break;
 		}
 	}
+	
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		if(mDiaryFragment != null)
+		{
+			mDiaryFragment.reStart();
+		}
+	}
 }

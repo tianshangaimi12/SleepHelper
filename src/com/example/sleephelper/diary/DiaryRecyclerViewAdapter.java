@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.example.sleephlper.R;
 
+import android.R.integer;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -55,7 +56,15 @@ public class DiaryRecyclerViewAdapter extends Adapter{
 			@Override
 			public void onClick(View v) {
 				if(editClickListener != null)
-					editClickListener.onClick(viewHolder.itemView, position);
+					editClickListener.onImgClick(viewHolder.imgEdit, position);
+			}
+		});
+		viewHolder.itemView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(editClickListener != null)
+					editClickListener.onItemClick(viewHolder.itemView, position);
 			}
 		});
 	}
@@ -96,7 +105,8 @@ public class DiaryRecyclerViewAdapter extends Adapter{
 	
 	interface EditClickListener
 	{
-		void onClick(View view,int position);
+		void onImgClick(View view,int position);
+		void onItemClick(View view,int position);
 	}
 	
 	public void setEditClickListener(EditClickListener editClickListener)

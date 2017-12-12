@@ -8,12 +8,17 @@ import com.example.sleephlper.R;
 
 import android.R.integer;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.TextureView;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -22,6 +27,11 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 public class DiaryAddActivity extends Activity implements OnClickListener{
+	
+	private DiaryDatabaseHelper mDiaryDatabaseHelper;
+	private SQLiteDatabase mDatabase;
+	private int diaryType;
+	
 	private SleepHelperTitle mHelperTitle;
 	private TextView mTextViewDate;
 	private EditText mEditTextTitle;
@@ -31,12 +41,16 @@ public class DiaryAddActivity extends Activity implements OnClickListener{
 	private ImageView mImageViewAdd;
 	private ImageView mImageViewClose;
 	private ImageView mImageViewDelete;
+	
+	private final int DIARY_ADD = 1;
+	private final int DIARY_EDIT = 2;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_add_diary);
 		initView();
+		initData();
 	}
 	
 	public void initView()
@@ -58,17 +72,25 @@ public class DiaryAddActivity extends Activity implements OnClickListener{
 		mTextViewDate = (TextView)findViewById(R.id.txt_date);
 		Calendar c = Calendar.getInstance();
 		mTextViewDate.setText(getDateString(c));
+	}
+	
+	public void initData()
+	{
 		Intent intent = getIntent();
 		if(intent.getStringExtra("date") != null)
 		{
+			diaryType = DIARY_EDIT;
 			String date = intent.getStringExtra("date");
 			String title = intent.getStringExtra("title");
 			String content = intent.getStringExtra("content");
-			mTextViewDate.setText(getDateString(date));
+			mTextViewDate.setText("今天,"+date);
 			mEditTextTitle.setText(title);
 			mEditTextContent.setText(content);
 			mHelperTitle.setCenterTitle("修改日记");
 		}
+		else diaryType = DIARY_ADD;
+		mDiaryDatabaseHelper = new DiaryDatabaseHelper(this, "SavedDiarys.db", null, 1);
+		mDatabase = mDiaryDatabaseHelper.getWritableDatabase();
 	}
 	
 	public String getDateString(Calendar c)
@@ -132,9 +154,36 @@ public class DiaryAddActivity extends Activity implements OnClickListener{
 		mImageViewClose.setOnClickListener(this);
 		mImageViewDelete.setOnClickListener(this);
 		mPopupWindow = new PopupWindow(root,LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+		mPopupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
+		mPopupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		mPopupWindow.showAtLocation(mImageButtonDiaryOptions, Gravity.LEFT|Gravity.TOP, 
 				mImageButtonDiaryOptions.getLeft()+mImageButtonDiaryOptions.getWidth()/3-10,
 				mImageButtonDiaryOptions.getTop()+mImageButtonDiaryOptions.getHeight()/2+10);
+	}
+	
+	public void save()
+	{
+		String date = mTextViewDate.getText().toString().substring(3);
+		String title = mEditTextTitle.getText().toString();
+		String content = mEditTextContent.getText().toString();
+		if(!TextUtils.isEmpty(title)&&!TextUtils.isEmpty(content))
+		{
+			if(diaryType == DIARY_ADD)
+			{
+				ContentValues values = new ContentValues();
+				values.put("date", date);
+				values.put("title", title);
+				values.put("content", content);
+				mDatabase.insert("diary", null, values);
+			}
+			else {
+				ContentValues values = new ContentValues();
+				values.put("title", title);
+				values.put("content", content);
+				mDatabase.update("diary", values, "title=? and content=? and date=?", 
+						new String[]{getIntent().getStringExtra("title"),getIntent().getStringExtra("content"),date});
+			}
+		}
 	}
 
 	@Override
@@ -144,11 +193,15 @@ public class DiaryAddActivity extends Activity implements OnClickListener{
 			showPopupWindow();
 			break;
 		case R.id.img_diary_check:
+			save();
+			DiaryAddActivity.this.finish();
 			break;
 		case R.id.img_diary_close:
 			mPopupWindow.dismiss();
 			break;
 		case R.id.img_diary_delete:
+			mEditTextContent.setText("");
+			mEditTextTitle.setText("");
 			break;
 		default:
 			break;

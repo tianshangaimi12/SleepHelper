@@ -1,7 +1,5 @@
 package com.example.sleephelper.diary;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,21 +8,20 @@ import com.example.sleephlper.R;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.Animator.AnimatorListener;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 
 public class DiaryFragment extends Fragment{
 	private RecyclerView mRecyclerView;
@@ -32,6 +29,8 @@ public class DiaryFragment extends Fragment{
 	private List<String> mDates;
 	private List<String> mTitles;
 	private List<String> mContents;
+	private DiaryDatabaseHelper mDatabaseHelper;
+	private SQLiteDatabase mDatabase;
 	
 	private DiaryLine mDiaryLine;
 	private ImageButton mButtonAddDiary;
@@ -54,10 +53,48 @@ public class DiaryFragment extends Fragment{
 			}
 		});
 		initData();
+		return view;
+	}
+	
+	public void initData()
+	{
+		mDatabaseHelper = new DiaryDatabaseHelper(getActivity(), "SavedDiarys.db", null, 1);
+		mDatabase = mDatabaseHelper.getWritableDatabase();
+		initListView();
+	}
+	
+	public void initListView()
+	{
+		mDates = new ArrayList<String>();
+		mTitles = new ArrayList<String>();
+		mContents = new ArrayList<String>();
+		Cursor cursor = mDatabase.query("diary", null, null, null, null, null, null);
+		if(cursor.moveToFirst())
+		{
+			do {
+				String date = cursor.getString(cursor.getColumnIndex("date"));
+				String title = cursor.getString(cursor.getColumnIndex("title"));
+				String content = cursor.getString(cursor.getColumnIndex("content"));
+				mDates.add(date);
+				mTitles.add(title);
+				mContents.add(content);
+				
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		mAdapter = new DiaryRecyclerViewAdapter(getActivity(), mDates, mTitles, mContents);
 		mAdapter.setEditClickListener(new EditClickListener() {
-			
+
 			@Override
-			public void onClick(View view, int position) {
+			public void onImgClick(View view, int position) {
+				mDatabase.delete("diary", "date=? and title=? and content=?", new String[]{
+						mDates.get(position),mTitles.get(position),mContents.get(position)
+				});
+				initListView();
+			}
+
+			@Override
+			public void onItemClick(View view, int position) {
 				final Intent intent = new Intent(getActivity(),DiaryAddActivity.class);
 				intent.putExtra("date", mDates.get(position));
 				intent.putExtra("title", mTitles.get(position));
@@ -75,24 +112,13 @@ public class DiaryFragment extends Fragment{
 				});
 			}
 		});
-		return view;
-	}
-	
-	public void initData()
-	{
-		mDates = new ArrayList<String>();
-		mTitles = new ArrayList<String>();
-		mContents = new ArrayList<String>();
-		long nowData = System.currentTimeMillis();
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-		Date date = new Date(nowData);
-		String nowDate = format.format(date);
-		mDates.add(nowDate);
-		mTitles.add("12345");
-		mContents.add("222222222222222234994919959911111111111111");
-		mAdapter = new DiaryRecyclerViewAdapter(getActivity(), mDates, mTitles, mContents);
 		mRecyclerView.setAdapter(mAdapter);
 		mDiaryLine.setPointsY(mAdapter.getPointsY());
+	}
+	
+	public void reStart()
+	{
+		initListView();
 	}
 
 }
