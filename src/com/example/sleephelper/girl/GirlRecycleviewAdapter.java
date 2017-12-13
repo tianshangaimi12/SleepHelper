@@ -3,6 +3,8 @@ package com.example.sleephelper.girl;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.sleephlper.R;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
@@ -13,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -27,7 +30,7 @@ import android.widget.RelativeLayout;
 public class GirlRecycleviewAdapter extends RecyclerView.Adapter{
 	private Context context;
 	private ArrayList<String> urls;
-	
+	private OnImgClickListener onImgClickListener;
 	
 	public GirlRecycleviewAdapter(Context context,ArrayList<String> urls)
 	{
@@ -41,20 +44,25 @@ public class GirlRecycleviewAdapter extends RecyclerView.Adapter{
 	}
 
 	@Override
-	public void onBindViewHolder(ViewHolder arg0, int arg1) {
+	public void onBindViewHolder(ViewHolder arg0, final int arg1) {
 		MyViewHolder viewHolder = (MyViewHolder) arg0;
-		int height = dip2px(context, 150+getRandomH());
-		int width = (context.getResources().getDisplayMetrics().widthPixels-dip2px(context, 20))/2;
-		viewHolder.imageView.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
-		Picasso.with(context)
+		//int height = dip2px(context, 150+getRandomH());
+		//int width = (context.getResources().getDisplayMetrics().widthPixels-dip2px(context, 20))/2;
+		//viewHolder.imageView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, height));
+		Glide.with(context)
 		.load(urls.get(arg1))
-		//.placeholder(R.drawable.ic_launcher)
-		//.memoryPolicy(MemoryPolicy.NO_CACHE)
-        //.networkPolicy(NetworkPolicy.NO_CACHE)
-        .fit()
-        //.resize(height, width)
-        .into(viewHolder.imageView);
-		
+		.fitCenter()
+		.dontAnimate()
+		.diskCacheStrategy(DiskCacheStrategy.ALL)
+		.into(viewHolder.imageView);
+		viewHolder.imageView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(onImgClickListener != null)
+					onImgClickListener.onclick(v, arg1);
+			}
+		});
 	}
 
 	@Override
@@ -94,5 +102,15 @@ public class GirlRecycleviewAdapter extends RecyclerView.Adapter{
 	{
 		Random random = new Random();
 		return random.nextInt(100);
+	}
+	
+	interface OnImgClickListener
+	{
+		void onclick(View view,int position);
+	}
+	
+	public void setOnImgClickListener(OnImgClickListener onImgClickListener)
+	{
+		this.onImgClickListener = onImgClickListener;
 	}
 }

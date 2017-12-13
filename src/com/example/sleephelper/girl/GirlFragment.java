@@ -1,6 +1,7 @@
 package com.example.sleephelper.girl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONObject;
 
@@ -10,10 +11,12 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.sleephelper.girl.GirlRecycleviewAdapter.OnImgClickListener;
 import com.example.sleephlper.R;
 import com.google.gson.Gson;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -31,14 +34,16 @@ import android.widget.Toast;
 
 public class GirlFragment extends Fragment{
 	
-	private final String URL = "http://gank.io/api/data/%E7%A6%8F%E5%88%A9/24/";
-
-	private RecyclerView mRecyclerView;
-	private GirlRecycleviewAdapter adapter;
-	private ProgressDialog mProgressDialog;
-	private SwipeRefreshLayout mSwipeRefreshLayout;
+	private ArrayList<String> urls = new ArrayList<String>();
 	private GirlsBean mGirlsBean;
 	private int index = 1;
+	private GirlRecycleviewAdapter adapter;
+
+	private RecyclerView mRecyclerView;
+	private ProgressDialog mProgressDialog;
+	private SwipeRefreshLayout mSwipeRefreshLayout;
+	
+	private final String URL = "http://gank.io/api/data/%E7%A6%8F%E5%88%A9/24/";
 	private final String TAG = "GirlFragment";
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,6 +59,7 @@ public class GirlFragment extends Fragment{
 			@Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_girl, null,false);
 		mRecyclerView = (RecyclerView)view.findViewById(R.id.recyclerview_girl);
+		initAdapter();
 		getGirlsPic(index);
 		mSwipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.swipe_fragment_girl);
 		mSwipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
@@ -66,8 +72,26 @@ public class GirlFragment extends Fragment{
 		return view;
 	}
 	
+	public void initAdapter()
+	{
+		adapter = new GirlRecycleviewAdapter(getActivity(),urls);
+		adapter.setOnImgClickListener(new OnImgClickListener() {
+			
+			@Override
+			public void onclick(View view, int position) {
+				Intent intent = new Intent(getActivity(),GirlShowActivity.class);
+				intent.putStringArrayListExtra("urls", urls);
+				intent.putExtra("position", position);
+				startActivity(intent);
+			}
+		});
+		mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+		mRecyclerView.setAdapter(adapter);
+	}
+	
 	public void getGirlsPic(int page)
 	{
+		urls.clear();
 		if(page > 1)
 			mProgressDialog.show();
 		final String url = URL+page;
@@ -86,7 +110,6 @@ public class GirlFragment extends Fragment{
 						mGirlsBean = gson.fromJson(response.toString(), GirlsBean.class);
 						if(mGirlsBean.getError() == false)
 						{
-							ArrayList<String> urls = new ArrayList<String>();
 							if(mGirlsBean.getGirls().size() == 0)
 							{
 								Toast.makeText(getActivity(), "没有图片", Toast.LENGTH_LONG).show();
@@ -96,9 +119,7 @@ public class GirlFragment extends Fragment{
 							{
 								urls.add(mGirlsBean.getGirls().get(i).getUrl());
 							}
-							adapter = new GirlRecycleviewAdapter(getActivity(),urls);
-							mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
-							mRecyclerView.setAdapter(adapter);
+							adapter.notifyDataSetChanged();
 							//mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
 						}
 						else {

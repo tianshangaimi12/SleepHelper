@@ -8,6 +8,7 @@ import com.example.sleephlper.R;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.database.Cursor;
@@ -99,8 +100,11 @@ public class DiaryFragment extends Fragment{
 				intent.putExtra("date", mDates.get(position));
 				intent.putExtra("title", mTitles.get(position));
 				intent.putExtra("content", mContents.get(position));
-				ObjectAnimator animator = ObjectAnimator.ofFloat(view, "rotation", 0,360);
+				ObjectAnimator rotationAnimator = ObjectAnimator.ofFloat(view, "rotationY", 0,-180);
+				ObjectAnimator alphaAnimator = ObjectAnimator.ofFloat(view, "alpha", 1,0);
+				AnimatorSet animator = new AnimatorSet();
 				animator.setDuration(500);
+				animator.play(rotationAnimator).with(alphaAnimator);
 				animator.start();
 				animator.addListener(new AnimatorListenerAdapter() {
 					@Override

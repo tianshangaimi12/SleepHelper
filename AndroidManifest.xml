@@ -29,6 +29,9 @@
             android:configChanges="keyboardHidden|orientation"
             android:windowSoftInputMode="adjustUnspecified|stateHidden" >
         </activity>
+        <activity 
+            android:name="com.example.sleephelper.girl.GirlShowActivity"
+            android:theme="@android:style/Theme.Dialog"></activity>
 
     </application>
 
