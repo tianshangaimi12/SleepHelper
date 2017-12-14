@@ -45,5 +45,26 @@
             android:text="@string/girl_bar_txt"
             android:layout_gravity="center_horizontal"/>
     </LinearLayout>
+    <LinearLayout 
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:id="@+id/linearlayout_joke">
+        <ImageView 
+            android:id="@+id/img_joke_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:src="@drawable/smile"
+            android:layout_gravity="center_horizontal"/>
+        <TextView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:text="@string/joke_bar_txt"
+            android:layout_gravity="center_horizontal"/>
+    </LinearLayout>
 
 </LinearLayout>

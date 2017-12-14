@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.example.sleephelper.diary.DiaryFragment;
 import com.example.sleephelper.girl.GirlFragment;
+import com.example.sleephelper.joke.JokeFragment;
 import com.example.sleephlper.R;
 
 import android.app.Activity;
@@ -30,9 +31,11 @@ public class MainActivity extends FragmentActivity implements OnClickListener{
 	private SelectBar mSelectBar;
 	private GirlFragment mGirlFragment;
 	private DiaryFragment mDiaryFragment;
+	private JokeFragment mJokeFragment;
 	private SleepHelperTitle mSleepHelperTitle;
 	private LinearLayout mLayoutDiary;
 	private LinearLayout mLayoutGirl;
+	private LinearLayout mLayoutJoke;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,9 +49,11 @@ public class MainActivity extends FragmentActivity implements OnClickListener{
     {
     	mGirlFragment = new GirlFragment();
         mDiaryFragment = new DiaryFragment();
+        mJokeFragment = new JokeFragment();
         fragments = new ArrayList<Fragment>();
         fragments.add(mDiaryFragment);
         fragments.add(mGirlFragment);
+        fragments.add(mJokeFragment);
         adapter = new MainFragmentAdapter(getSupportFragmentManager(), fragments);
     }
     
@@ -63,13 +68,14 @@ public class MainActivity extends FragmentActivity implements OnClickListener{
     	mSelectBar.setStartPoint();
     	mLayoutDiary = (LinearLayout)findViewById(R.id.linearlayout_diary);
     	mLayoutGirl = (LinearLayout)findViewById(R.id.linearlayout_girl);
+    	mLayoutJoke = (LinearLayout)findViewById(R.id.linearlayout_joke);
     	mLayoutDiary.setOnClickListener(this);
     	mLayoutGirl.setOnClickListener(this);
+    	mLayoutJoke.setOnClickListener(this);
     	mViewPager.addOnPageChangeListener(new OnPageChangeListener() {
 			
 			@Override
 			public void onPageSelected(int arg0) {
-				//mSelectBar.setIndex(arg0);
 				currentPage = arg0;
 			}
 			
@@ -78,10 +84,16 @@ public class MainActivity extends FragmentActivity implements OnClickListener{
 				Log.d("MainActivity","arg1="+arg1+"   arg2="+arg2);//arg2始终为正，值为与初始位置的偏移量
 				//0-->1
 				if(currentPage == 0 && arg0 == 0)
-					mSelectBar.setStartPoint(arg1);
-				//1--0
+					mSelectBar.setStartPoint(arg1,1);
+				//1-->0
 				else if(currentPage == 1 && arg0 == 0)
-					mSelectBar.setStartPoint(arg1);
+					mSelectBar.setStartPoint(arg1,-1);
+				//1-->2
+				else if(currentPage == 1 && arg0 == 1)
+					mSelectBar.setStartPoint(arg1,2);
+				//2-->1
+				else if(currentPage == 2 && arg0 == 1)
+					mSelectBar.setStartPoint(arg1,-2);
 			}
 			
 			@Override
@@ -100,7 +112,11 @@ public class MainActivity extends FragmentActivity implements OnClickListener{
 			break;
 		case R.id.linearlayout_girl:
 			mViewPager.setCurrentItem(1);
+			break;
 			//mSelectBar.setIndex(1);
+		case R.id.linearlayout_joke:
+			mViewPager.setCurrentItem(2);
+			break;
 		default:
 			break;
 		}
