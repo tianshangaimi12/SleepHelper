@@ -3,10 +3,28 @@
     <attr name="barWidth" format="dimension"/>
     <attr name="barHeight" format="dimension"></attr>
     <attr name="barColor" format="color"></attr>
+    <attr name="back_color" format="color"></attr>
+    <attr name="strock_width" format="dimension"></attr>
+    <attr name="strock_color" format="color"></attr>
+    <attr name="corner_radius" format="dimension"></attr>
+    <attr name="symbol_color" format="color"></attr>
+    <attr name="menu_style">
+        <enum name="left" value="0"/>
+        <enum name="right" value="1"/>
+    </attr>
     
     <declare-styleable name="selectBar">
-        <attr name="barWidth"/>
+        <attr name="barWidth"></attr>
         <attr name="barHeight"></attr>
         <attr name="barColor"></attr>
+    </declare-styleable>
+    
+    <declare-styleable name="horizonExpandMenu">
+        <attr name="back_color"></attr>
+        <attr name="strock_width"></attr>
+        <attr name="strock_color"></attr>
+        <attr name="corner_radius"></attr>
+        <attr name="symbol_color"></attr>
+        <attr name="menu_style"></attr>
     </declare-styleable>
 </resources>
