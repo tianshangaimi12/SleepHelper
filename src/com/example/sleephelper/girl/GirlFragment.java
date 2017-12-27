@@ -1,7 +1,6 @@
 package com.example.sleephelper.girl;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.json.JSONObject;
 
@@ -40,7 +39,6 @@ public class GirlFragment extends Fragment{
 	private GirlRecycleviewAdapter adapter;
 
 	private RecyclerView mRecyclerView;
-	private ProgressDialog mProgressDialog;
 	private SwipeRefreshLayout mSwipeRefreshLayout;
 	
 	private final String URL = "http://gank.io/api/data/%E7%A6%8F%E5%88%A9/24/";
@@ -48,9 +46,6 @@ public class GirlFragment extends Fragment{
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mProgressDialog = new ProgressDialog(getActivity());
-		mProgressDialog.setTitle("");
-		mProgressDialog.setMessage("...美女马上来...");
 	}
 	
 	@Override
@@ -92,16 +87,12 @@ public class GirlFragment extends Fragment{
 	public void getGirlsPic(int page)
 	{
 		urls.clear();
-		if(page > 1)
-			mProgressDialog.show();
 		final String url = URL+page;
 		JsonObjectRequest request = new JsonObjectRequest(url, null, 
 				new Response.Listener<JSONObject>() {
 
 					@Override
 					public void onResponse(JSONObject response) {
-						if(mProgressDialog != null && mProgressDialog.isShowing())
-							mProgressDialog.dismiss();
 						if(mSwipeRefreshLayout.isRefreshing())
 							mSwipeRefreshLayout.setRefreshing(false);
 						Log.d(TAG, url);
@@ -131,8 +122,6 @@ public class GirlFragment extends Fragment{
 
 					@Override
 					public void onErrorResponse(VolleyError error) {
-						if(mProgressDialog != null && mProgressDialog.isShowing())
-							mProgressDialog.dismiss();
 						if(mSwipeRefreshLayout.isRefreshing())
 							mSwipeRefreshLayout.setRefreshing(false);
 					}

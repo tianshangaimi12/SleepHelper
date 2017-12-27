@@ -15,6 +15,8 @@ import com.google.gson.Gson;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -27,6 +29,7 @@ public class JokeFragment extends Fragment{
 	private JokeRecyclerViewAdapter mAdapter;
 	
 	private RecyclerView mRecyclerView;
+	private SwipeRefreshLayout mSwipeRefreshLayout;
 	
 	private final String TAG = "JokeFragment";
 	private final String URL = "http://is.snssdk.com/neihan/stream/mix/v1/?" +
@@ -45,6 +48,14 @@ public class JokeFragment extends Fragment{
 		View view = inflater.inflate(R.layout.fragment_joke, null,false);
 		mRecyclerView = (RecyclerView)view.findViewById(R.id.recyclerview_joke);
 		mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+		mSwipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.swipe_fragment_joke);
+		mSwipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
+			
+			@Override
+			public void onRefresh() {
+				getJoke();
+			}
+		});
 		getJoke();
 		return view;
 	}
@@ -56,6 +67,8 @@ public class JokeFragment extends Fragment{
 
 					@Override
 					public void onResponse(JSONObject response) {
+						if(mSwipeRefreshLayout.isRefreshing())
+							mSwipeRefreshLayout.setRefreshing(false);
 						Log.d(TAG, "response="+response);
 						String msg = response.optString("message");
 						if(msg.equals("success"))
@@ -71,6 +84,8 @@ public class JokeFragment extends Fragment{
 
 					@Override
 					public void onErrorResponse(VolleyError error) {
+						if(mSwipeRefreshLayout.isRefreshing())
+							mSwipeRefreshLayout.setRefreshing(false);
 						Log.d(TAG, "error="+error);
 					}
 				});

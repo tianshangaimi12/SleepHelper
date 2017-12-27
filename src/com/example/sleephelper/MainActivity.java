@@ -2,6 +2,7 @@ package com.example.sleephelper;
 
 import java.util.ArrayList;
 
+import com.example.sleephelper.SleepHelperTitle.BackClickListner;
 import com.example.sleephelper.diary.DiaryFragment;
 import com.example.sleephelper.girl.GirlFragment;
 import com.example.sleephelper.joke.JokeFragment;
@@ -13,12 +14,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -26,6 +30,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener{
 	private int currentPage;
 	private MainFragmentAdapter adapter;
 	private ArrayList<Fragment> fragments;
+	private SettingFragment settingFragment;
 	
 	private ViewPager mViewPager;
 	private SelectBar mSelectBar;
@@ -36,6 +41,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener{
 	private LinearLayout mLayoutDiary;
 	private LinearLayout mLayoutGirl;
 	private LinearLayout mLayoutJoke;
+	private DrawerLayout mDrawerLayout;
+	private FrameLayout mFrameLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +54,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener{
     
     public void initData()
     {
+    	settingFragment = new SettingFragment();
     	mGirlFragment = new GirlFragment();
         mDiaryFragment = new DiaryFragment();
         mJokeFragment = new JokeFragment();
@@ -59,11 +67,21 @@ public class MainActivity extends FragmentActivity implements OnClickListener{
     
     public void initView()
     {
+    	mDrawerLayout = (DrawerLayout)findViewById(R.id.dl_main);
+    	mFrameLayout = (FrameLayout)findViewById(R.id.fl_setting);
+    	getSupportFragmentManager().beginTransaction().add(R.id.fl_setting, settingFragment, "SettingFragment").commit();
     	mViewPager = (ViewPager)findViewById(R.id.viewpager_main);
     	mViewPager.setAdapter(adapter);
     	mSleepHelperTitle = (SleepHelperTitle)findViewById(R.id.title_main);
     	mSleepHelperTitle.setCenterTitle("SleepHelper");
     	mSleepHelperTitle.setBackImg(R.drawable.menu);
+    	mSleepHelperTitle.setBackClickListner(new BackClickListner() {
+			
+			@Override
+			public void onClick(View view) {
+				mDrawerLayout.openDrawer(Gravity.LEFT);
+			}
+		});
     	mSelectBar = (SelectBar)findViewById(R.id.selectbar);
     	mSelectBar.setStartPoint();
     	mLayoutDiary = (LinearLayout)findViewById(R.id.linearlayout_diary);
@@ -129,5 +147,11 @@ public class MainActivity extends FragmentActivity implements OnClickListener{
 		{
 			mDiaryFragment.reStart();
 		}
+	}
+	
+	public void setCurrentPage(int index)
+	{
+		mViewPager.setCurrentItem(index);
+		mDrawerLayout.closeDrawer(Gravity.LEFT);
 	}
 }
