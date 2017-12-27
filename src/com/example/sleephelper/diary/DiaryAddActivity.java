@@ -2,31 +2,27 @@ package com.example.sleephelper.diary;
 
 import java.util.Calendar;
 
+import com.example.sleephelper.HorizonExpandMenu;
 import com.example.sleephelper.SleepHelperTitle;
 import com.example.sleephelper.SleepHelperTitle.BackClickListner;
 import com.example.sleephlper.R;
 
-import android.R.integer;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.Gravity;
-import android.view.TextureView;
+import android.util.Log;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.Window;
 import android.view.View.OnClickListener;
-import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
-public class DiaryAddActivity extends Activity implements OnClickListener{
+public class DiaryAddActivity extends Activity implements OnClickListener,OnFocusChangeListener{
 	
 	private DiaryDatabaseHelper mDiaryDatabaseHelper;
 	private SQLiteDatabase mDatabase;
@@ -36,11 +32,10 @@ public class DiaryAddActivity extends Activity implements OnClickListener{
 	private TextView mTextViewDate;
 	private EditText mEditTextTitle;
 	private DiaryEditText mEditTextContent;
-	private ImageButton mImageButtonDiaryOptions;
-	private PopupWindow mPopupWindow;
-	private ImageView mImageViewAdd;
-	private ImageView mImageViewClose;
-	private ImageView mImageViewDelete;
+	private Button mBtnAdd;
+	private Button mBtnDelete;
+	private Button mBtnClose;
+	private HorizonExpandMenu hMenu;
 	
 	private final int DIARY_ADD = 1;
 	private final int DIARY_EDIT = 2;
@@ -55,10 +50,11 @@ public class DiaryAddActivity extends Activity implements OnClickListener{
 	
 	public void initView()
 	{
-		mImageButtonDiaryOptions = (ImageButton)findViewById(R.id.imgbtn_check_diary);
-		mImageButtonDiaryOptions.setOnClickListener(this);
+		hMenu = (HorizonExpandMenu)findViewById(R.id.hMenu);
 		mEditTextContent = (DiaryEditText)findViewById(R.id.dedt_content);
+		mEditTextContent.setOnFocusChangeListener(this);
 		mEditTextTitle = (EditText)findViewById(R.id.edt_title);
+		mEditTextTitle.setOnFocusChangeListener(this);
 		mHelperTitle = (SleepHelperTitle)findViewById(R.id.title_diary_add);
 		mHelperTitle.setCenterTitle("添加日记");
 		mHelperTitle.setBackImg(R.drawable.back);
@@ -72,6 +68,12 @@ public class DiaryAddActivity extends Activity implements OnClickListener{
 		mTextViewDate = (TextView)findViewById(R.id.txt_date);
 		Calendar c = Calendar.getInstance();
 		mTextViewDate.setText(getDateString(c));
+		mBtnAdd = (Button)findViewById(R.id.btn_menu_add);
+		mBtnClose = (Button)findViewById(R.id.btn_menu_close);
+		mBtnDelete = (Button)findViewById(R.id.btn_menu_delete);
+		mBtnAdd.setOnClickListener(this);
+		mBtnClose.setOnClickListener(this);
+		mBtnDelete.setOnClickListener(this);
 	}
 	
 	public void initData()
@@ -139,27 +141,6 @@ public class DiaryAddActivity extends Activity implements OnClickListener{
 		return getDateString(c);
 	}
 	
-	public void showPopupWindow()
-	{
-		if(mPopupWindow != null)
-		{
-			if(mPopupWindow.isShowing())
-				return;
-		}
-		View root = getLayoutInflater().inflate(R.layout.pwindow_diary_options, null);
-		mImageViewAdd =  (ImageView)root.findViewById(R.id.img_diary_check);
-		mImageViewClose = (ImageView)root.findViewById(R.id.img_diary_close);
-		mImageViewDelete = (ImageView)root.findViewById(R.id.img_diary_delete);
-		mImageViewAdd.setOnClickListener(this);
-		mImageViewClose.setOnClickListener(this);
-		mImageViewDelete.setOnClickListener(this);
-		mPopupWindow = new PopupWindow(root,LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-		mPopupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
-		mPopupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-		mPopupWindow.showAtLocation(mImageButtonDiaryOptions, Gravity.LEFT|Gravity.TOP, 
-				mImageButtonDiaryOptions.getLeft()+mImageButtonDiaryOptions.getWidth()/3-10,
-				mImageButtonDiaryOptions.getTop()+mImageButtonDiaryOptions.getHeight()/2+10);
-	}
 	
 	public void save()
 	{
@@ -189,17 +170,14 @@ public class DiaryAddActivity extends Activity implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.imgbtn_check_diary:
-			showPopupWindow();
-			break;
-		case R.id.img_diary_check:
+		case R.id.btn_menu_add:
 			save();
 			DiaryAddActivity.this.finish();
 			break;
-		case R.id.img_diary_close:
-			mPopupWindow.dismiss();
+		case R.id.btn_menu_close:
+			DiaryAddActivity.this.finish();
 			break;
-		case R.id.img_diary_delete:
+		case R.id.btn_menu_delete:
 			mEditTextContent.setText("");
 			mEditTextTitle.setText("");
 			break;
@@ -207,5 +185,15 @@ public class DiaryAddActivity extends Activity implements OnClickListener{
 			break;
 		}
 	}
+
+	@Override
+	public void onFocusChange(View v, boolean hasFocus) {
+		Log.d("JokeFragment", ""+hasFocus);
+		if(hasFocus && hMenu.isExpanded == true)
+		{
+			//hMenu.startExpandAnimation();
+		}
+	}
+	
 
 }

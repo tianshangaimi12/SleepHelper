@@ -8,11 +8,13 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.SuppressLint;
+import android.app.ActionBar.Tab;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
@@ -30,7 +32,7 @@ public class HorizonExpandMenu extends LinearLayout{
 	private int height;
 	private int range;
 	private int cicleRadius;
-	private boolean isExpanded = true;
+	public boolean isExpanded = false;
 	private boolean isAnimatorRunning = false;
 	
 	private int backColor;
@@ -61,7 +63,7 @@ public class HorizonExpandMenu extends LinearLayout{
 		super(context, attrs, defStyleAttr);
 		defaultHeight = dip2px(context, 40);
 		defaultWidth = dip2px(context, 200);
-		defaultAngle = 0;
+		defaultAngle = Math.PI/2;
 		TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs,R.styleable.horizonExpandMenu, defStyleAttr, 0);
 		backColor = typedArray.getColor(typedArray.getIndex(R.styleable.horizonExpandMenu_back_color), Color.WHITE);
 		strockColor = typedArray.getColor(typedArray.getIndex(R.styleable.horizonExpandMenu_strock_color), Color.GRAY);
@@ -89,8 +91,8 @@ public class HorizonExpandMenu extends LinearLayout{
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		width = measureLength(defaultWidth, widthMeasureSpec);
 		height = measureLength(defaultHeight, heightMeasureSpec);
-		cicleRadius = getHeight()/2 - getPaddingLeft();
-		setMeasuredDimension(width, height);
+		cicleRadius = height/2 - getPaddingLeft();
+		setMeasuredDimension(2*cicleRadius+2*getPaddingLeft(), height);
 	}
 	
 	@Override
@@ -105,20 +107,20 @@ public class HorizonExpandMenu extends LinearLayout{
 			//横线
 			canvas.drawLine(getPaddingLeft(), getHeight()/2, getPaddingLeft()+2*cicleRadius, getHeight()/2, sPaint);
 			//竖线
-			canvas.drawLine((float) (getPaddingLeft()+cicleRadius+Math.cos(defaultAngle)*cicleRadius), 
+			canvas.drawLine((float)(getPaddingLeft()+cicleRadius+Math.cos(defaultAngle)*cicleRadius), 
 					(float)(getPaddingLeft()+cicleRadius-cicleRadius*Math.sin(defaultAngle)), 
 					(float)(getPaddingLeft()+cicleRadius-cicleRadius*Math.cos(defaultAngle)), 
-					(float) (getPaddingLeft()+cicleRadius+cicleRadius*Math.sin(defaultAngle)), sPaint);
+					(float)(getPaddingLeft()+cicleRadius+cicleRadius*Math.sin(defaultAngle)), sPaint);
 		}
 		else 
 		{
 			//横线
 			canvas.drawLine(getRight()-getPaddingRight()-2*cicleRadius, getHeight()/2, getRight()-getPaddingRight(), getHeight()/2, sPaint);
 			//竖线
-			canvas.drawLine((float) (getPaddingLeft()+cicleRadius+Math.cos(defaultAngle)*cicleRadius), 
+			canvas.drawLine((float)(getPaddingLeft()+cicleRadius+Math.cos(defaultAngle)*cicleRadius), 
 					(float)(getPaddingLeft()+cicleRadius-cicleRadius*Math.sin(defaultAngle)), 
 					(float)(getPaddingLeft()+cicleRadius-cicleRadius*Math.cos(defaultAngle)), 
-					(float) (getPaddingLeft()+cicleRadius+cicleRadius*Math.sin(defaultAngle)), sPaint);
+					(float)(getPaddingLeft()+cicleRadius+cicleRadius*Math.sin(defaultAngle)), sPaint);
 		}
 	}
 	
@@ -131,6 +133,7 @@ public class HorizonExpandMenu extends LinearLayout{
 			{
 				if(x < 2*cicleRadius + 2*getPaddingLeft() && isAnimatorRunning == false)
 				{
+					requestFocusFromTouch();
 					startExpandAnimation();
 					return true;
 				}
@@ -138,6 +141,7 @@ public class HorizonExpandMenu extends LinearLayout{
 			else {
 				if(x> getRight()-2*cicleRadius-2*getPaddingRight() && isAnimatorRunning == false)
 				{
+					requestFocusFromTouch();
 					startExpandAnimation();
 					return true;
 				}
@@ -177,10 +181,10 @@ public class HorizonExpandMenu extends LinearLayout{
 		return (int) (dipValue * scale + 0.5f); // +0.5是为了向上取整
 	}
 
-	private void startExpandAnimation()
+	public void startExpandAnimation()
 	{
 		ValueAnimator animator = ValueAnimator.ofFloat(0,1);
-		animator.setDuration(1000);
+		animator.setDuration(500);
 		animator.addListener(new AnimatorListener() {
 			
 			@Override
@@ -238,4 +242,25 @@ public class HorizonExpandMenu extends LinearLayout{
 		});
 		animator.start();
 	}
+	
+	@Override
+	protected void onFocusChanged(boolean gainFocus, int direction,
+			Rect previouslyFocusedRect) {
+		Log.d("JokeFragment", "onFocusChanged");
+		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+		if(gainFocus == false)
+		{
+			if(isExpanded)
+			{
+				startExpandAnimation();
+			}
+		}
+	}
+	
+	@Override
+	public void onWindowFocusChanged(boolean hasWindowFocus) {
+		super.onWindowFocusChanged(hasWindowFocus);
+		Log.d("JokeFragment", "onWindowFocusChanged");
+	}
+	
 }
